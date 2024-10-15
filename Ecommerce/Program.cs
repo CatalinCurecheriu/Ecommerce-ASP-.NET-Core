@@ -1,23 +1,31 @@
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.Data;  // Assicurati di avere questo using
+using Ecommerce.Data;  // Make sure this is included
 using Ecommerce.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Aggiungi i servizi al contenitore.
+// Add services to the container.
 builder.Services.AddControllers();
 
-// Aggiungi Swagger/OpenAPI
+// Add Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configura il contesto del database
+// Configure the database context
 builder.Services.AddDbContext<ECommerceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configura la pipeline delle richieste HTTP.
+// Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    SeedData.Initialize(services); // Initialize the seed data
+}
+
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

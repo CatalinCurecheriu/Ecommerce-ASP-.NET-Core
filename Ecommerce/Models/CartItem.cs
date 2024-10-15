@@ -3,10 +3,8 @@
     public class CartItem
     {
         public int Id { get; set; }
-        public int CartId { get; set; }
-        public Cart Cart { get; set; }
-        public int ProductId { get; set; }
-        public Product Product { get; set; }
+        public required Cart Cart { get; set; } // Modificato
+        public required Product Product { get; set; } // Modificato
         public int Quantity { get; set; }
     }
 }
