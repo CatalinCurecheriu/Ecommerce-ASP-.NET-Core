@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper; // Includi AutoMapper
+using Ecommerce.Dto; // Includi il namespace per i DTO
 using Ecommerce.Interfaces;
 using Ecommerce.Models;
+using Microsoft.AspNetCore.Http; // Includi Http
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Controllers
@@ -11,53 +14,69 @@ namespace Ecommerce.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
+        private readonly IMapper _mapper; // Aggiungi un campo per IMapper
 
-        public ProductsController(IProductRepository productRepository)
+        public ProductsController(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _mapper = mapper; // Inizializza IMapper
         }
 
+        // GET: api/products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
         {
             var products = await _productRepository.GetAllProductsAsync();
-            return Ok(products);
+            var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products); // Mappa a ProductDto
+            return Ok(productDtos);
         }
 
+        // GET: api/products/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProductById(int id)
+        public async Task<ActionResult<ProductDto>> GetProductById(int id)
         {
             var product = await _productRepository.GetProductByIdAsync(id);
-            if (product == null) return NotFound();
+            if (product == null) return NotFound(); // Restituisce 404 se il prodotto non esiste
 
-            return Ok(product);
+            var productDto = _mapper.Map<ProductDto>(product); // Mappa a ProductDto
+            return Ok(productDto);
         }
 
+        // POST: api/products
         [HttpPost]
-        public async Task<ActionResult<Product>> AddProduct(Product product)
+        public async Task<ActionResult<ProductDto>> AddProduct([FromBody] ProductDto productDto)
         {
+            if (productDto == null) return BadRequest("ProductDto cannot be null."); // Verifica se l'oggetto è null
+
+            var product = _mapper.Map<Product>(productDto); // Mappa da ProductDto a Product
             var newProduct = await _productRepository.AddProductAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = newProduct.Id }, newProduct);
+            var newProductDto = _mapper.Map<ProductDto>(newProduct); // Mappa a ProductDto
+
+            return CreatedAtAction(nameof(GetProductById), new { id = newProductDto.Id }, newProductDto); // Restituisce 201
         }
 
+        // PUT: api/products/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
         {
-            if (id != product.Id) return BadRequest();
+            if (id != productDto.Id) return BadRequest("ID mismatch."); // Controlla che gli ID corrispondano
+            if (productDto == null) return BadRequest("ProductDto cannot be null."); // Verifica se l'oggetto è null
 
+            var product = _mapper.Map<Product>(productDto); // Mappa da ProductDto a Product
             var result = await _productRepository.UpdateProductAsync(product);
-            if (!result) return NotFound();
+            if (!result) return NotFound(); // Restituisce 404 se il prodotto non esiste
 
-            return NoContent();
+            return NoContent(); // Restituisce 204 se l'aggiornamento ha successo
         }
 
+        // DELETE: api/products/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var result = await _productRepository.DeleteProductAsync(id);
-            if (!result) return NotFound();
+            if (!result) return NotFound(); // Restituisce 404 se il prodotto non esiste
 
-            return NoContent();
+            return NoContent(); // Restituisce 204 se la cancellazione ha successo
         }
     }
 }
