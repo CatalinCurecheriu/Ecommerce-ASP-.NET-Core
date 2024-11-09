@@ -44,16 +44,34 @@ namespace Ecommerce.Controllers
 
         // POST: api/orders
         [HttpPost]
-        public async Task<ActionResult<OrderDto>> AddOrder([FromBody] OrderDto orderDto)
+        public async Task<IActionResult> AddOrder(OrderDto orderDto)
         {
-            if (orderDto == null) return BadRequest("OrderDto cannot be null."); // Verifica se l'oggetto è null
+            if (string.IsNullOrEmpty(orderDto.CustomerEmail) || string.IsNullOrEmpty(orderDto.CustomerPassword))
+            {
+                return BadRequest("L'email e la password del cliente sono obbligatorie.");
+            }
 
-            var order = _mapper.Map<Order>(orderDto); // Mappa da OrderDto a Order
-            var newOrder = await _orderRepository.AddOrderAsync(order);
-            var newOrderDto = _mapper.Map<OrderDto>(newOrder); // Mappa a OrderDto
+            // Creazione dell'oggetto Customer usando i dati da OrderDto
+            var customer = new Customer
+            {
+                Name = orderDto.CustomerName,
+                Email = orderDto.CustomerEmail,
+                Password = orderDto.CustomerPassword
+            };
 
-            return CreatedAtAction(nameof(GetOrderById), new { id = newOrderDto.Id }, newOrderDto); // Restituisce 201
+            // Creazione dell'oggetto Order associato al Customer
+            var order = new Order
+            {
+                Customer = customer,
+                OrderDate = orderDto.OrderDate
+                // Altri campi dell'ordine
+            };
+
+            // Salva l'ordine nel database
+            await _orderRepository.AddOrderAsync(order);
+            return Ok();
         }
+
 
         // PUT: api/orders/{id}
         [HttpPut("{id}")]

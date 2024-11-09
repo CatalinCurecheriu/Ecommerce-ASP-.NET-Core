@@ -48,21 +48,28 @@ namespace Ecommerce.Controllers
         {
             if (productDto == null) return BadRequest("ProductDto cannot be null."); // Verifica se l'oggetto è null
 
-            var product = _mapper.Map<Product>(productDto); // Mappa da ProductDto a Product
-            var newProduct = await _productRepository.AddProductAsync(product);
-            var newProductDto = _mapper.Map<ProductDto>(newProduct); // Mappa a ProductDto
+            // Mappa da ProductDto a Product
+            var product = _mapper.Map<Product>(productDto);
 
-            return CreatedAtAction(nameof(GetProductById), new { id = newProductDto.Id }, newProductDto); // Restituisce 201
+            // Aggiungi il prodotto al database (l'ID verrà generato automaticamente dal database)
+            var newProduct = await _productRepository.AddProductAsync(product);
+
+            // Mappa il prodotto appena creato a ProductDto (con l'ID generato)
+            var newProductDto = _mapper.Map<ProductDto>(newProduct);
+
+            // Restituisci una risposta 201 con l'oggetto appena creato, includendo l'ID generato
+            return CreatedAtAction(nameof(GetProductById), new { id = newProduct.Id }, newProductDto); // Usa newProduct.Id
         }
 
         // PUT: api/products/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
         {
-            if (id != productDto.Id) return BadRequest("ID mismatch."); // Controlla che gli ID corrispondano
             if (productDto == null) return BadRequest("ProductDto cannot be null."); // Verifica se l'oggetto è null
+            if (id != productDto.Id) return BadRequest("ID mismatch."); // Controlla che gli ID corrispondano
 
-            var product = _mapper.Map<Product>(productDto); // Mappa da ProductDto a Product
+            // Mappa da ProductDto a Product
+            var product = _mapper.Map<Product>(productDto);
             var result = await _productRepository.UpdateProductAsync(product);
             if (!result) return NotFound(); // Restituisce 404 se il prodotto non esiste
 

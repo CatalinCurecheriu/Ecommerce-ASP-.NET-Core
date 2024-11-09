@@ -1,18 +1,22 @@
-﻿
-// Mapping/MappingProfile.cs
-using AutoMapper;
-using Ecommerce.Models;  // Assicurati di includere il namespace corretto
-using Ecommerce.Dto;     // Assicurati di includere il namespace corretto
+﻿using AutoMapper;
+using Ecommerce.Dto;
+using Ecommerce.Models;
 
 public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<Order, OrderDto>().ReverseMap(); // Aggiunta mappatura inversa
-        CreateMap<Product, ProductDto>().ReverseMap(); // Aggiunta mappatura inversa
-        CreateMap<Cart, CartDto>().ReverseMap(); // Aggiunta mappatura per il carrello
-        CreateMap<CartItem, CartItemDto>().ReverseMap(); // Aggiunta mappatura per l'elemento del carrello
-        CreateMap<Customer, CustomerDto>().ReverseMap(); // Aggiunta mappatura per il cliente
-        CreateMap<OrderItem, OrderItemDto>().ReverseMap(); // Aggiunta mappatura per l'elemento dell'ordine
+        // Configura il mapping di Order a OrderDto con i dettagli del cliente
+        CreateMap<Order, OrderDto>()
+            .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer.Name))
+            .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer.Email))
+            .ForMember(dest => dest.CustomerPassword, opt => opt.MapFrom(src => src.Customer.Password))
+            .ReverseMap();
+
+        CreateMap<Product, ProductDto>().ReverseMap();
+        CreateMap<Cart, CartDto>().ReverseMap();
+        CreateMap<CartItem, CartItemDto>().ReverseMap();
+        CreateMap<Customer, CustomerDto>().ReverseMap();
+        CreateMap<OrderItem, OrderItemDto>().ReverseMap();
     }
 }

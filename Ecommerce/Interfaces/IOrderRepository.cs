@@ -7,7 +7,7 @@ namespace Ecommerce.Interfaces
     public interface IOrderRepository
     {
         Task<IEnumerable<Order>> GetAllOrdersAsync();
-        Task<Order> GetOrderByIdAsync(int id);
+        Task<Order?> GetOrderByIdAsync(int id); // Modificato per supportare valori nullabili
         Task<Order> AddOrderAsync(Order order);
         Task<bool> UpdateOrderAsync(Order order);
         Task<bool> DeleteOrderAsync(int id);
