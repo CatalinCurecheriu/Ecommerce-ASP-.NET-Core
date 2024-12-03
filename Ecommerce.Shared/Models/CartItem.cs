@@ -1,9 +1,9 @@
-﻿namespace Ecommerce.Models
+﻿namespace Ecommerce.Shared.Models
 {
-    public class OrderItem
+    public class CartItem
     {
         public int Id { get; set; }
-        public required Order Order { get; set; } // Modificato
+        public required Cart Cart { get; set; } // Modificato
         public required Product Product { get; set; } // Modificato
         public int Quantity { get; set; }
     }

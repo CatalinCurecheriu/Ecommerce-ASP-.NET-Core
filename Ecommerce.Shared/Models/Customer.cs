@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Ecommerce.Models
+namespace Ecommerce.Shared.Models
 {
     public class Customer
     {

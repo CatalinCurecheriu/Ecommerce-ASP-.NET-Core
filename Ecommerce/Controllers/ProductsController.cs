@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper; // Includi AutoMapper
 using Ecommerce.Dto; // Includi il namespace per i DTO
 using Ecommerce.Interfaces;
-using Ecommerce.Models;
+using Ecommerce.Shared.Models;
 using Microsoft.AspNetCore.Http; // Includi Http
 using Microsoft.AspNetCore.Mvc;
 

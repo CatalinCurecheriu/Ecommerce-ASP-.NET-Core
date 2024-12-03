@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ecommerce.Models;
+using Ecommerce.Shared.Models;
 
 namespace Ecommerce.Data
 {

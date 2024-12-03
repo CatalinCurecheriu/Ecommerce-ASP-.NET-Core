@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Ecommerce.Data;  // Assicurati che questo sia incluso
-using Ecommerce.Models;
+using Ecommerce.Shared.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Ecommerce.Interfaces; // Assicurati di includere le interfacce
 using Ecommerce.Repository; // Assicurati di includere le implementazioni dei repository

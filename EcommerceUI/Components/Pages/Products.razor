@@ -1,0 +1,32 @@
+﻿@page "/products"
+@inject HttpClient Http
+
+<h1>Lista Prodotti</h1>
+
+<ul>
+    @if (ProductList == null)
+    {
+        <li>Caricamento in corso...</li>
+    }
+    else if (!ProductList.Any())
+    {
+        <li>Nessun prodotto disponibile.</li>
+    }
+    else
+    {
+        @foreach (var product in ProductList)
+        {
+            <li>@product.Name - €@product.Price</li>
+        }
+    }
+</ul>
+
+@code {
+    private List<Ecommerce.Shared.Models.Product> ProductList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Chiama l'endpoint API del backend
+        ProductList = await Http.GetFromJsonAsync<List<Ecommerce.Shared.Models.Product>>("api/products");
+    }
+}

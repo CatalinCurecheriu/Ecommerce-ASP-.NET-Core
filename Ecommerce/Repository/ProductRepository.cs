@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Ecommerce.Data;
 using Ecommerce.Interfaces;
-using Ecommerce.Models;
+using Ecommerce.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Repository
