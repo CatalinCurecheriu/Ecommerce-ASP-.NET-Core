@@ -1,103 +1,109 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import styled from 'styled-components';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect } from "react";
+import { useTransition, animated } from "@react-spring/web";
+import styled from "styled-components";
+import moviesData from "../data/moviesData";
 
 const CarouselWrapper = styled.div`
-  position: relative;
-  width: 90%;
-  margin: 2rem auto;
-  overflow: hidden;
-  height: 400px;
-  border-radius: 12px;
-`;
-
-const Slide = styled(motion.div)`
-  position: absolute;
   width: 100%;
-  height: 100%;
-  background-position: center;
-  background-size: cover;
-  border-radius: 12px;
-`;
-
-const NavButton = styled(motion.button)`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  color: #fff;
-  font-size: 2rem;
-  cursor: pointer;
-  z-index: 2;
-  padding: 0.8rem;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s ease;
-  &:hover {
-    transform: scale(1.2);
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 0;
+`;
+
+const CardsContainer = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 900px; /* Migliorato per supportare 3 immagini visibili */
+  height: 350px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    height: 250px;
   }
 `;
 
-const LeftArrow = styled(NavButton)`
-  left: 1rem;
+const Card = styled(animated.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  width: 250px;
+  height: 350px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+
+  @media (max-width: 768px) {
+    width: 200px;
+    height: 250px;
+  }
 `;
 
-const RightArrow = styled(NavButton)`
-  right: 1rem;
-`;
+const getDataFromIndex = (data, initialIndex) => {
+    const result = [];
+    let index = initialIndex;
+    for (let i = 0; i < data.length; i++) {
+        if (index >= data.length) index = 0;
+        result.push(data[index]);
+        if (result.length === 3) break;
+        index++;
+    }
+    return result;
+};
 
-function Carousel({ slides }) {
-    const [index, setIndex] = useState(0);
+const CARD_WIDTH = 250; // Larghezza di ogni card
+const GAP = 15; // Spazio tra le card
+const X_TRANSITION = CARD_WIDTH + GAP; // Transizione orizzontale
 
-    const nextSlide = () => {
-        setIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    };
+function Carousel() {
+    const [data, setData] = useState(getDataFromIndex(moviesData, 0));
 
-    const prevSlide = () => {
-        setIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-    };
+    useEffect(() => {
+        let index = 1;
+        const interval = setInterval(() => {
+            setData(getDataFromIndex(moviesData, index));
+            index++;
+            if (index >= moviesData.length) index = 0;
+        }, 2500);
+        return () => clearInterval(interval);
+    }, []);
+
+    const transitions = useTransition(
+        data.map((item, i) => ({
+            ...item,
+            x: i * X_TRANSITION - X_TRANSITION, // Posiziona l'immagine centrale
+            scale: i !== 1 ? 0.8 : 1,
+        })),
+        {
+            from: ({ x }) => ({ x: x + X_TRANSITION, opacity: 0, scale: 0.6 }),
+            enter: ({ x, scale }) => ({ x, opacity: 1, scale }),
+            leave: ({ x }) => ({ x: x - X_TRANSITION, opacity: 0, scale: 0.6 }),
+            update: ({ x, scale }) => ({ x, scale }),
+            keys: ({ id }) => id,
+        }
+    );
 
     return (
         <CarouselWrapper>
-            <LeftArrow onClick={prevSlide}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-arrow-left">
-                    <line x1="19" y1="12" x2="5" y2="12" />
-                    <polyline points="12 19 5 12 12 5" />
-                </svg>
-            </LeftArrow>
-            <RightArrow onClick={nextSlide}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-arrow-right">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                </svg>
-            </RightArrow>
-
-            <AnimatePresence>
-                <Slide
-                    key={slides[index].id}
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ backgroundImage: `url(${slides[index].poster})` }}
-                />
-            </AnimatePresence>
+            <CardsContainer>
+                {transitions((style, item) => (
+                    <Card
+                        style={{
+                            backgroundImage: `url(${item.poster})`,
+                            ...style,
+                        }}
+                    />
+                ))}
+            </CardsContainer>
         </CarouselWrapper>
     );
 }
-
-// Validazione delle props con PropTypes
-Carousel.propTypes = {
-    slides: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            poster: PropTypes.string.isRequired,
-        })
-    ).isRequired,
-};
 
 export default Carousel;

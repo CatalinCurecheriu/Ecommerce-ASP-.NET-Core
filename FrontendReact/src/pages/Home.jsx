@@ -1,17 +1,63 @@
-
 import HeroParallax from '../components/HeroParallax';
 import Carousel from '../components/Carousel';
-import moviesData from '../data/moviesData';
 
 function Home() {
-    // Scegli qualche film in evidenza (es. i primi 3)
-    const featured = moviesData.slice(0, 3);
-
     return (
-        <div style={{ marginTop: '60px' }}>
+        <div
+            style={{
+                marginTop: '60px',
+                padding: '0 1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'flex-start', // Allineamento verticale
+                minHeight: '100vh',
+                background: '#0b0b0b', // Sfondo per continuità visiva
+            }}
+        >
+            {/* Hero Section */}
             <HeroParallax />
-            <h2 style={{ textAlign: 'center', margin: '2rem' }}>Featured Movies</h2>
-            <Carousel slides={featured} />
+
+            {/* Featured Movies Section */}
+            <div
+                style={{
+                    textAlign: 'center',
+                    margin: '2rem 0',
+                }}
+            >
+                <h2
+                    style={{
+                        fontSize: '2rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1.5px',
+                        color: '#fff',
+                        marginBottom: '1rem',
+                    }}
+                >
+                    Featured Movies
+                </h2>
+                <p
+                    style={{
+                        fontSize: '1rem',
+                        color: '#aaa',
+                        marginBottom: '2rem',
+                    }}
+                >
+                    Discover our handpicked selection of must-watch movies.
+                </p>
+            </div>
+
+            {/* Carousel Section */}
+            <div
+                style={{
+                    width: '100%',
+                    maxWidth: '900px', // Larghezza massima per contenere il carousel
+                    display: 'flex',
+                    justifyContent: 'center',
+                }}
+            >
+                <Carousel />
+            </div>
         </div>
     );
 }
