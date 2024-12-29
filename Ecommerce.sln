@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecommerce", "Ecommerce\Ecommerce.csproj", "{0D0C8A59-3D2C-4193-86FB-7B7091D246AA}"
 EndProject
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "FrontendReact", "FrontendReact\FrontendReact.njsproj", "{B867ECE6-0BC4-4BEC-BBD2-28B5FD8B9432}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "FrontendReact", "FrontendReact\FrontendReact.njsproj", "{2F9C5E8C-AC89-484D-BB96-F69001436C4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{0D0C8A59-3D2C-4193-86FB-7B7091D246AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D0C8A59-3D2C-4193-86FB-7B7091D246AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D0C8A59-3D2C-4193-86FB-7B7091D246AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B867ECE6-0BC4-4BEC-BBD2-28B5FD8B9432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B867ECE6-0BC4-4BEC-BBD2-28B5FD8B9432}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B867ECE6-0BC4-4BEC-BBD2-28B5FD8B9432}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B867ECE6-0BC4-4BEC-BBD2-28B5FD8B9432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F9C5E8C-AC89-484D-BB96-F69001436C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F9C5E8C-AC89-484D-BB96-F69001436C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F9C5E8C-AC89-484D-BB96-F69001436C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F9C5E8C-AC89-484D-BB96-F69001436C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
