@@ -11,22 +11,24 @@ const HeroContainer = styled.div`
   overflow: hidden;
 `;
 
-const ParallaxBG = styled(motion.div)` 
+const ParallaxBG = styled(motion.div)`
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: url('https://image.tmdb.org/t/p/original/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg') center/cover no-repeat; /* Immagine di alta qualità */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://image.tmdb.org/t/p/original/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg') center/cover no-repeat;
   z-index: -1;
 `;
 
 const HeroText = styled.div`
-  font-size: 2rem;
+  font-size: 2.5rem;
   text-align: center;
   max-width: 600px;
   padding: 1.5rem;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 12px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
 `;
 
 function HeroParallax() {
@@ -37,8 +39,8 @@ function HeroParallax() {
         <HeroContainer>
             <ParallaxBG style={{ y: yPos }} />
             <HeroText>
-                <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Discover the Future of Movie Shopping</h1>
-                <p>Immerse yourself in a next-gen cinematic experience</p>
+                <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Welcome to Movieverse</h1>
+                <p>Your ultimate destination for cinematic adventures</p>
             </HeroText>
         </HeroContainer>
     );

@@ -7,6 +7,7 @@ export function FavoritesProvider({ children }) {
     const [favorites, setFavorites] = useState([]);
 
     const toggleFavorite = (movieId) => {
+        console.log(`Toggling favorite for movie ID: ${movieId}`);
         setFavorites((prev) => toggleFavoriteHelper(prev, movieId));
     };
 

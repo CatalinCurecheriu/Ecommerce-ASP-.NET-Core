@@ -1,4 +1,3 @@
-
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
@@ -26,32 +25,30 @@ const Select = styled.select`
   border-radius: 4px;
 `;
 
-function FiltersBar({ onSearch, onCategoryChange }) {
-    const handleSearch = (e) => {
-        onSearch(e.target.value);
-    };
+function FiltersBar({ onFiltersChange }) {
+    const handleSearch = (e) => onFiltersChange({ searchTerm: e.target.value });
+    const handleGenre = (e) => onFiltersChange({ genre: e.target.value });
+    const handleYear = (e) => onFiltersChange({ year: e.target.value });
+    const handleRating = (e) => onFiltersChange({ rating: e.target.value });
 
     return (
         <FiltersContainer>
-            <Input
-                type="text"
-                placeholder="Search movies..."
-                onChange={handleSearch}
-            />
-            <Select onChange={(e) => onCategoryChange(e.target.value)}>
-                <option value="">All Categories</option>
-                <option value="Sci-Fi">Sci-Fi</option>
-                <option value="Action">Action</option>
-                <option value="Drama">Drama</option>
+            <Input type="text" placeholder="Search movies..." onChange={handleSearch} />
+            <Select onChange={handleGenre}>
+                <option value="">All Genres</option>
+                {/* Aggiorna con generi dinamici */}
             </Select>
+            <Select onChange={handleYear}>
+                <option value="">All Years</option>
+                {/* Genera dinamicamente gli anni */}
+            </Select>
+            <Input type="number" placeholder="Min Rating" onChange={handleRating} />
         </FiltersContainer>
     );
 }
 
-// Validazione delle props
 FiltersBar.propTypes = {
-    onSearch: PropTypes.func.isRequired, // Deve essere una funzione obbligatoria
-    onCategoryChange: PropTypes.func.isRequired, // Anche questa è obbligatoria
+    onFiltersChange: PropTypes.func.isRequired,
 };
 
 export default FiltersBar;
