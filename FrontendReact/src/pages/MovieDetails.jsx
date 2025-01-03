@@ -1,137 +1,188 @@
 // src/pages/MovieDetails.jsx
 
-// Import di React e Hook
 import { useState, useEffect } from 'react';
-// useParams per leggere l'ID dalla URL
 import { useParams } from 'react-router-dom';
-// Import della funzione per i dettagli da TMDb
 import { getMovieDetails } from '../api/tmdb';
-// styled-components
 import styled from 'styled-components';
-// framer-motion
-import { motion, AnimatePresence } from 'framer-motion';
+import { Button, Typography, Grid } from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
-// Wrapper del contenuto
-const DetailsWrapper = styled.div`
-  margin-top: 60px;  
-  padding: 2rem;     
-  display: flex;     
-  flex-direction: column; 
-  align-items: center;    
-  color: #fff;       
+// Styled Components
+const MovieCardWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  max-width: 1200px;
+  margin: 80px auto; /* Uniform margin to align with navbar */
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
-// Stile per il poster
+const InfoSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  color: #fff;
+  z-index: 2;
+
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
+`;
+
 const Poster = styled.img`
-  width: 300px;       
-  border-radius: 8px; 
+  width: auto;
+  max-width: 300px;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  margin-right: 20px;
+  object-fit: cover;
+  filter: none; /* Removed blur */
+  position: relative;
+  z-index: 3;
+
+  @media (max-width: 768px) {
+    max-width: 200px;
+    margin: 0 auto 20px;
+  }
 `;
 
-// Modal per il trailer (sfondo scuro)
-const TrailerModal = styled(motion.div)`
-  position: fixed;  
-  top: 0; left: 0;  
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.7); 
-  display: flex; 
-  align-items: center; 
+const Background = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url(${props => props.background});
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px);
+  opacity: 0.5;
+  z-index: 1;
+`;
+
+const TrailerButton = styled(Button)`
+  margin-top: 20px;
+  border: 2px solid #fff;
+  color: #fff;
+  background: transparent;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  z-index: 999; 
+  padding: 10px 20px;
+  text-transform: none;
+  font-weight: bold;
+  font-size: 16px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #1e90ff;
+    color: #1e90ff;
+  }
+
+  svg {
+    margin-right: 8px;
+  }
 `;
 
 function MovieDetails() {
-    // Otteniamo l'ID dal param URL
     const { id } = useParams();
-    // Stato per i dettagli del film
     const [movie, setMovie] = useState(null);
-    // Stato di caricamento
     const [loading, setLoading] = useState(true);
-    // Stato di errore
     const [error, setError] = useState(null);
-    // Stato per mostrare/nascondere il trailer
-    const [showTrailer, setShowTrailer] = useState(false);
 
-    // useEffect per caricare i dettagli del film
     useEffect(() => {
         const fetchDetails = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                // Chiamiamo l'API di TMDb
                 const data = await getMovieDetails(id);
                 setMovie(data);
             } catch (err) {
-                setError("Impossibile caricare i dettagli del film");
+                setError('Impossibile caricare i dettagli del film');
             } finally {
                 setLoading(false);
             }
         };
+
         fetchDetails();
     }, [id]);
 
-    // Se stiamo ancora caricando
     if (loading) {
-        return <div style={{ marginTop: '60px', textAlign: 'center' }}>Caricamento in corso...</div>;
+        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Caricamento in corso...</div>;
     }
 
-    // Se c'è un errore
     if (error) {
-        return <div style={{ marginTop: '60px', textAlign: 'center', color: 'red' }}>{error}</div>;
+        return <div style={{ textAlign: 'center', marginTop: '60px', color: 'red' }}>{error}</div>;
     }
 
-    // Se il film non esiste
     if (!movie) {
-        return <div style={{ marginTop: '60px', textAlign: 'center' }}>Movie not found.</div>;
+        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Movie not found.</div>;
     }
-
-    // Poster in alta definizione
-    const posterUrl = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : "https://via.placeholder.com/500x750?text=No+Poster";
-
-    // Trailer "fittizio": potresti recuperare un reale YouTube key con l'endpoint /videos
-    const trailerUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ";
 
     return (
-        <DetailsWrapper>
-            <h2>{movie.title}</h2>
-            <Poster src={posterUrl} alt={movie.title} />
-            <p style={{ maxWidth: '600px', margin: '1rem 0', textAlign: 'center' }}>{movie.overview}</p>
-            <p><b>Release Date:</b> {movie.release_date}</p>
-            <p><b>Vote Average:</b> {movie.vote_average}</p>
+        <MovieCardWrapper>
+            <Background background={`https://image.tmdb.org/t/p/original${movie.poster_path}`} />
+            <Poster src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} />
+            <InfoSection>
+                <Typography variant="h4" component="h1" style={{ color: '#fff', marginBottom: '10px' }}>
+                    {movie.title}
+                </Typography>
+                <Typography variant="subtitle1" style={{ color: '#9ac7fa' }}>
+                    {movie.release_date?.split('-')[0]}, {movie.director || 'Unknown Director'}
+                </Typography>
+                <Typography variant="body2" style={{ color: '#fff', margin: '10px 0' }}>
+                    {movie.overview}
+                </Typography>
 
-            <button onClick={() => setShowTrailer(true)}>Watch Trailer</button>
+                <Grid container spacing={2} style={{ marginTop: '20px' }}>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Durata:</strong> {movie.runtime} min</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Genere:</strong> {movie.genres?.map(genre => genre.name).join(', ')}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Lingua originale:</strong> {movie.original_language?.toUpperCase()}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Budget:</strong> ${movie.budget?.toLocaleString()}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Incasso totale:</strong> ${movie.revenue?.toLocaleString()}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Voto medio:</strong> {movie.vote_average}</Typography>
+                    </Grid>
+                    <Grid item xs={6} sm={4}>
+                        <Typography variant="subtitle1"><strong>Numero di voti:</strong> {movie.vote_count}</Typography>
+                    </Grid>
+                </Grid>
 
-            <AnimatePresence>
-                {showTrailer && (
-                    <TrailerModal
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        <motion.iframe
-                            style={{ width: '800px', height: '450px', border: 'none' }}
-                            src={trailerUrl}
-                            title="Movie Trailer"
-                            allowFullScreen
-                            initial={{ y: -50 }}
-                            animate={{ y: 0 }}
-                            exit={{ y: 50 }}
-                        />
-                        <button
-                            style={{
-                                position: 'absolute',
-                                top: '50px', right: '50px',
-                                fontSize: '2rem', background: 'none', color: '#fff', border: 'none'
-                            }}
-                            onClick={() => setShowTrailer(false)}
-                        >
-                            X
-                        </button>
-                    </TrailerModal>
-                )}
-            </AnimatePresence>
-        </DetailsWrapper>
+                <TrailerButton
+                    variant="outlined"
+                    href={`https://www.youtube.com/results?search_query=${movie.title} trailer`}
+                    target="_blank"
+                >
+                    <PlayArrowIcon /> Guarda il Trailer
+                </TrailerButton>
+            </InfoSection>
+        </MovieCardWrapper>
     );
 }
 
