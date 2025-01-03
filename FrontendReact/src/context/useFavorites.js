@@ -1,3 +1,4 @@
+// src/context/useFavorites.js
 import { useContext } from 'react';
 import { FavoritesContext } from './FavoritesContext';
 

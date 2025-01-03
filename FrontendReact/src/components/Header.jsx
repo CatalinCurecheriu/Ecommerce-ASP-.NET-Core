@@ -1,3 +1,4 @@
+// src/components/Header.jsx
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -9,8 +10,9 @@ const HeaderWrapper = styled.header`
   left: 0;
   width: 100%;
   height: 60px;
-  background: ${({ scrolled }) => (scrolled ? 'rgba(0, 0, 0, 0.8)' : 'transparent')};
-  backdrop-filter: ${({ scrolled }) => (scrolled ? 'blur(10px)' : 'none')};
+  /* Usa $scrolled anziché scrolled per evitare il warning */
+  background: ${({ $scrolled }) => ($scrolled ? 'rgba(0, 0, 0, 0.8)' : 'transparent')};
+  backdrop-filter: ${({ $scrolled }) => ($scrolled ? 'blur(10px)' : 'none')};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -98,7 +100,7 @@ function Header() {
     }, []);
 
     return (
-        <HeaderWrapper scrolled={scrolled}>
+        <HeaderWrapper $scrolled={scrolled}>
             <Title>Futuristic Movies</Title>
             <NavLinks>
                 <Link to="/">Home</Link>
@@ -107,7 +109,7 @@ function Header() {
                 <Link to="/behind-the-scenes">Behind the Scenes</Link>
             </NavLinks>
 
-            <Hamburger onClick={() => setMenuOpen((prev) => !prev)}>
+            <Hamburger onClick={() => setMenuOpen(prev => !prev)}>
                 <span />
                 <span />
                 <span />
@@ -120,18 +122,10 @@ function Header() {
                     exit={{ x: '100%' }}
                     transition={{ duration: 0.3 }}
                 >
-                    <Link to="/" onClick={() => setMenuOpen(false)}>
-                        Home
-                    </Link>
-                    <Link to="/movies" onClick={() => setMenuOpen(false)}>
-                        Movies
-                    </Link>
-                    <Link to="/favorites" onClick={() => setMenuOpen(false)}>
-                        Favorites
-                    </Link>
-                    <Link to="/behind-the-scenes" onClick={() => setMenuOpen(false)}>
-                        Behind the Scenes
-                    </Link>
+                    <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+                    <Link to="/movies" onClick={() => setMenuOpen(false)}>Movies</Link>
+                    <Link to="/favorites" onClick={() => setMenuOpen(false)}>Favorites</Link>
+                    <Link to="/behind-the-scenes" onClick={() => setMenuOpen(false)}>Behind the Scenes</Link>
                 </MobileMenu>
             )}
         </HeaderWrapper>

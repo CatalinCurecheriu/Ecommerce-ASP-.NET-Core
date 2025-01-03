@@ -1,3 +1,4 @@
+// src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
 import { FavoritesProvider } from './context/FavoritesProvider';

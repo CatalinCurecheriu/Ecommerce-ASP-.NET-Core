@@ -1,9 +1,11 @@
+// src/styles/GlobalStyle.js
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
-    margin: 0; padding: 0;
+    margin: 0; 
+    padding: 0;
   }
 
   html, body {
@@ -15,10 +17,6 @@ const GlobalStyle = createGlobalStyle`
     scroll-behavior: smooth;
   }
 
-  /* Noise texture se vuoi: body { background: url('/noise.png') repeat, #0b0b0b; } */
-  /* 
-     Scrollbar personalizzato (solo Chrome/Edge)
-  */
   ::-webkit-scrollbar {
     width: 8px;
   }

@@ -1,15 +1,14 @@
-import React from 'react';
+
+// Import di ReactDOM
 import ReactDOM from 'react-dom/client';
+// Import del BrowserRouter
 import { BrowserRouter } from 'react-router-dom';
+// Import del nostro componente App
 import App from './App';
-import { FavoritesProvider } from './context/FavoritesProvider'; // Importa il provider
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-        <FavoritesProvider>
-            <BrowserRouter>
-                <App />
-            </BrowserRouter>
-        </FavoritesProvider>
-    </React.StrictMode>
+    // Rimuoviamo StrictMode per evitare doppi rendering
+    <BrowserRouter>
+        <App />
+    </BrowserRouter>
 );

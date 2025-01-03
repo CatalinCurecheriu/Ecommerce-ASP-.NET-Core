@@ -1,14 +1,24 @@
+// src/context/FavoritesProvider.jsx
+
+// Import di React
 import { useState } from 'react';
+// PropTypes
 import PropTypes from 'prop-types';
+// Importiamo il contesto creato
 import { FavoritesContext } from './FavoritesContext';
+// Importiamo la funzione per toggle preferiti
 import { toggleFavoriteHelper } from '../Utils/Utils';
 
+/**
+ * Il provider che avvolge la nostra app e gestisce i preferiti in uno stato condiviso
+ */
 export function FavoritesProvider({ children }) {
+    // Stato con la lista di film preferiti
     const [favorites, setFavorites] = useState([]);
 
-    const toggleFavorite = (movieId) => {
-        console.log(`Toggling favorite for movie ID: ${movieId}`);
-        setFavorites((prev) => toggleFavoriteHelper(prev, movieId));
+    // Funzione per aggiungere/rimuovere un film dai preferiti
+    const toggleFavorite = (movie) => {
+        setFavorites((prev) => toggleFavoriteHelper(prev, movie));
     };
 
     return (

@@ -1,11 +1,17 @@
-export const SLIDE_TRANSITION_DURATION = 0.7;
+// src/Utils/Utils.js
 
-export const formatSlideTitle = (title) => title.toUpperCase();
-
-export const toggleFavoriteHelper = (favorites, movieId) => {
-    if (favorites.includes(movieId)) {
-        return favorites.filter((id) => id !== movieId); // Rimuove il film dai preferiti
+/**
+ * Aggiunge o rimuove un film dai preferiti:
+ * - Se il film (stesso id) è già nei preferiti, lo rimuove
+ * - Altrimenti lo aggiunge
+ */
+export function toggleFavoriteHelper(favorites, movie) {
+    const alreadyFav = favorites.some((fav) => fav.id === movie.id);
+    if (alreadyFav) {
+        // Rimuoviamo il film
+        return favorites.filter((fav) => fav.id !== movie.id);
     } else {
-        return [...favorites, movieId]; // Aggiunge il film ai preferiti
+        // Aggiungiamo il film
+        return [...favorites, movie];
     }
-};
+}
