@@ -1,20 +1,23 @@
-// src/styles/GlobalStyle.js
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
-    margin: 0; 
+    margin: 0;
     padding: 0;
   }
 
   html, body {
     height: 100%;
     font-family: 'Space Grotesk', 'Orbitron', sans-serif;
-    background: #0b0b0b; /* Dark mode */
+    background: #0b0b0b;
     color: #fff;
     overflow-x: hidden;
     scroll-behavior: smooth;
+  }
+
+  #root {
+    padding-top: 60px; /* Aggiungi padding per evitare che il contenuto vada sotto la navbar */
   }
 
   ::-webkit-scrollbar {

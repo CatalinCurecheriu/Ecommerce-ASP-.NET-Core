@@ -1,5 +1,3 @@
-// src/pages/MovieDetails.jsx
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMovieDetails } from '../api/tmdb';
@@ -14,7 +12,7 @@ const MovieCardWrapper = styled.div`
   flex-direction: column;
   width: 90%;
   max-width: 1200px;
-  margin: 80px auto; /* Uniform margin to align with navbar */
+  margin: 80px auto;
   padding: 20px;
   background: rgba(0, 0, 0, 0.8);
   border-radius: 15px;
@@ -52,7 +50,7 @@ const Poster = styled.img`
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   margin-right: 20px;
   object-fit: cover;
-  filter: none; /* Removed blur */
+  filter: none;
   position: relative;
   z-index: 3;
 
@@ -68,7 +66,7 @@ const Background = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url(${props => props.background});
+  background-image: url(${(props) => props.background});
   background-size: cover;
   background-position: center;
   filter: blur(20px);
@@ -152,25 +150,39 @@ function MovieDetails() {
 
                 <Grid container spacing={2} style={{ marginTop: '20px' }}>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Durata:</strong> {movie.runtime} min</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Durata:</strong> {movie.runtime} min
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Genere:</strong> {movie.genres?.map(genre => genre.name).join(', ')}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Genere:</strong> {movie.genres?.map((genre) => genre.name).join(', ')}
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Lingua originale:</strong> {movie.original_language?.toUpperCase()}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Lingua originale:</strong> {movie.original_language?.toUpperCase()}
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Budget:</strong> ${movie.budget?.toLocaleString()}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Budget:</strong> ${movie.budget?.toLocaleString()}
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Incasso totale:</strong> ${movie.revenue?.toLocaleString()}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Incasso totale:</strong> ${movie.revenue?.toLocaleString()}
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Voto medio:</strong> {movie.vote_average}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Voto medio:</strong> {movie.vote_average}
+                        </Typography>
                     </Grid>
                     <Grid item xs={6} sm={4}>
-                        <Typography variant="subtitle1"><strong>Numero di voti:</strong> {movie.vote_count}</Typography>
+                        <Typography variant="subtitle1">
+                            <strong>Numero di voti:</strong> {movie.vote_count}
+                        </Typography>
                     </Grid>
                 </Grid>
 

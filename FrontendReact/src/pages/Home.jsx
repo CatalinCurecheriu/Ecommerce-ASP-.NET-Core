@@ -1,4 +1,4 @@
-import HeroParallax from '../components/HeroParallax';
+// src/pages/Home.jsx
 import Carousel from '../components/Carousel';
 
 function Home() {
@@ -10,14 +10,11 @@ function Home() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'flex-start', // Allineamento verticale
+                justifyContent: 'flex-start',
                 minHeight: '100vh',
-                background: '#0b0b0b', // Sfondo per continuità visiva
+                background: '#0b0b0b',
             }}
         >
-            {/* Hero Section */}
-            <HeroParallax />
-
             {/* Featured Movies Section */}
             <div
                 style={{
@@ -51,7 +48,7 @@ function Home() {
             <div
                 style={{
                     width: '100%',
-                    maxWidth: '900px', // Larghezza massima per contenere il carousel
+                    maxWidth: '900px',
                     display: 'flex',
                     justifyContent: 'center',
                 }}

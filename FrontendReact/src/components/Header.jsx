@@ -1,24 +1,23 @@
-// src/components/Header.jsx
-import { useState, useEffect } from 'react';
+ï»¿import { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useNavbarVisibility from '../hooks/useNavbarVisibility';
 
 const HeaderWrapper = styled.header`
   position: fixed;
-  top: 0;
+  top: ${({ $visible }) => ($visible ? '0' : '-60px')};
   left: 0;
   width: 100%;
   height: 60px;
-  /* Usa $scrolled anziché scrolled per evitare il warning */
-  background: ${({ $scrolled }) => ($scrolled ? 'rgba(0, 0, 0, 0.8)' : 'transparent')};
-  backdrop-filter: ${({ $scrolled }) => ($scrolled ? 'blur(10px)' : 'none')};
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.5rem;
-  z-index: 999;
-  transition: background 0.3s;
+  transition: top 0.3s ease-in-out;
 `;
 
 const Title = styled.h1`
@@ -35,6 +34,7 @@ const NavLinks = styled.nav`
   a {
     color: #fff;
     text-decoration: none;
+
     &:hover {
       text-decoration: underline;
     }
@@ -90,26 +90,22 @@ const MobileMenu = styled(motion.div)`
 `;
 
 function Header() {
-    const [scrolled, setScrolled] = useState(false);
+    const isNavbarVisible = useNavbarVisibility();
     const [menuOpen, setMenuOpen] = useState(false);
 
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 10);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     return (
-        <HeaderWrapper $scrolled={scrolled}>
+        <HeaderWrapper $visible={isNavbarVisible}>
             <Title>Futuristic Movies</Title>
+
             <NavLinks>
                 <Link to="/">Home</Link>
                 <Link to="/movies">Movies</Link>
                 <Link to="/favorites">Favorites</Link>
+                <Link to="/cart">Cart</Link>
                 <Link to="/behind-the-scenes">Behind the Scenes</Link>
             </NavLinks>
 
-            <Hamburger onClick={() => setMenuOpen(prev => !prev)}>
+            <Hamburger onClick={() => setMenuOpen((prev) => !prev)}>
                 <span />
                 <span />
                 <span />
@@ -125,6 +121,7 @@ function Header() {
                     <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
                     <Link to="/movies" onClick={() => setMenuOpen(false)}>Movies</Link>
                     <Link to="/favorites" onClick={() => setMenuOpen(false)}>Favorites</Link>
+                    <Link to="/cart" onClick={() => setMenuOpen(false)}>Cart</Link>
                     <Link to="/behind-the-scenes" onClick={() => setMenuOpen(false)}>Behind the Scenes</Link>
                 </MobileMenu>
             )}
