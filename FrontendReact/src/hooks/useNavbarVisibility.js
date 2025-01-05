@@ -24,3 +24,4 @@ export default function useNavbarVisibility() {
 
     return isNavbarVisible;
 }
+console.log('ScrollY:', window.scrollY);
