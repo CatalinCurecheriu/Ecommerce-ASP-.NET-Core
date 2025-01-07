@@ -5,13 +5,14 @@ function Home() {
     return (
         <div
             style={{
-                marginTop: '60px',
+                /* RIMOSSO marginTop: '60px', */
                 padding: '0 1rem',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'flex-start',
-                minHeight: '100vh',
+                // se vuoi più contenuto per scrollare, puoi impostare > 100vh
+                minHeight: '120vh',
                 background: '#0b0b0b',
             }}
         >

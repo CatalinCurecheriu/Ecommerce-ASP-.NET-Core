@@ -1,15 +1,10 @@
 // src/pages/Favorites.jsx
-
-// Import di styled-components
 import styled from "styled-components";
-// Importiamo il nostro hook personalizzato
 import { useFavorites } from "../context/useFavorites";
-// Componente MovieCard per visualizzare i film
 import MovieCard from "../components/MovieCard";
 
-// Contenitore principale
 const FavoritesWrapper = styled.div`
-  margin-top: 60px;   
+  /* Rimosso margin-top: 60px; */
   padding: 2rem;      
   text-align: center; 
   color: #fff;        
@@ -20,7 +15,6 @@ const FavoritesWrapper = styled.div`
   }
 `;
 
-// Griglia per i preferiti
 const FavoritesGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -29,10 +23,8 @@ const FavoritesGrid = styled.div`
 `;
 
 function Favorites() {
-    // Estraggo i preferiti dal context
     const { favorites } = useFavorites();
 
-    // Se non ci sono preferiti, mostriamo un messaggio
     if (favorites.length === 0) {
         return (
             <FavoritesWrapper>
@@ -42,7 +34,6 @@ function Favorites() {
         );
     }
 
-    // Altrimenti li mostriamo
     return (
         <FavoritesWrapper>
             <h2>Your Favorites</h2>

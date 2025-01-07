@@ -1,57 +1,53 @@
 ﻿// src/pages/Cart.jsx
 import styled from 'styled-components';
-import { useCart } from '../context/useCart'; // ✅ Import corretto
+import { useCart } from '../context/useCart';
+import CartItem from '../components/CartItem';
+import CartSummary from '../components/CartSummary';
 
-const CartWrapper = styled.div`
-  margin-top: 60px;
+const CartPageWrapper = styled.div`
+  /* RIMOSSO marginTop: '60px'; */
   padding: 2rem;
-  text-align: center;
   color: #fff;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
-const CartGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
+const ItemsContainer = styled.div`
+  flex: 1;
+  width: 100%;
+  max-width: 800px;
 `;
 
 function Cart() {
-    const { cart } = useCart(); // estraiamo lo stato del carrello
+    const { cart } = useCart();
 
     if (cart.length === 0) {
         return (
-            <CartWrapper>
-                <h2>Cart</h2>
-                <p>Your cart is empty.</p>
-            </CartWrapper>
+            <CartPageWrapper>
+                <h2>Your Cart is empty.</h2>
+            </CartPageWrapper>
         );
     }
 
     return (
-        <CartWrapper>
-            <h2>Cart</h2>
-            <CartGrid>
-                {cart.map((movie) => (
-                    <div
-                        key={movie.id}
-                        style={{
-                            border: '1px solid rgba(255,255,255,0.2)',
-                            padding: '1rem',
-                            borderRadius: '8px',
-                            minWidth: '150px',
-                        }}
-                    >
-                        <img
-                            src={movie.poster}
-                            alt={movie.title}
-                            style={{ width: '100%', borderRadius: '8px' }}
-                        />
-                        <h4>{movie.title}</h4>
-                    </div>
+        <CartPageWrapper>
+            <ItemsContainer>
+                <h2>Shopping Cart</h2>
+                {cart.map((item) => (
+                    <CartItem key={item.id} item={item} />
                 ))}
-            </CartGrid>
-        </CartWrapper>
+            </ItemsContainer>
+
+            <CartSummary />
+        </CartPageWrapper>
     );
 }
 

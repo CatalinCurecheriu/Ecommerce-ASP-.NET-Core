@@ -130,4 +130,3 @@ function Header() {
 }
 
 export default Header;
-console.log('Navbar visible:', isNavbarVisible);

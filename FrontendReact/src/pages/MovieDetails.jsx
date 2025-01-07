@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+// src/pages/MovieDetails.jsx
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getMovieDetails } from '../api/tmdb';
 import styled from 'styled-components';
 import { Button, Typography, Grid } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 
-// Styled Components
 const MovieCardWrapper = styled.div`
   position: relative;
   display: flex;
@@ -112,12 +112,12 @@ function MovieDetails() {
                 const data = await getMovieDetails(id);
                 setMovie(data);
             } catch (err) {
+                console.error(err); // Logghiamo l'errore per evitare warnings
                 setError('Impossibile caricare i dettagli del film');
             } finally {
                 setLoading(false);
             }
         };
-
         fetchDetails();
     }, [id]);
 

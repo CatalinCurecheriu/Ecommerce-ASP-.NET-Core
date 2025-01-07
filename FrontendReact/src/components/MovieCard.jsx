@@ -1,7 +1,7 @@
 ﻿// src/components/MovieCard.jsx
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import PropTypes from 'prop-types';
 import { useFavorites } from '../context/useFavorites';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,7 +10,6 @@ import { faStar as emptyStar } from '@fortawesome/free-regular-svg-icons';
 // IMPORT PER IL CART:
 import { useCart } from '../context/useCart';
 
-// Card wrapper con animazioni
 const CardWrapper = styled(motion.div)`
   position: relative;
   width: 200px;
@@ -41,13 +40,14 @@ const Overlay = styled.div`
   justify-content: flex-end;
 `;
 
+/* Usiamo la transient prop $isFav per evitare warning in console */
 const FavoriteBtn = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   background: none;
   border: none;
-  color: ${(props) => (props.isFav ? '#FFD700' : '#FFFFFF')};
+  color: ${(props) => (props.$isFav ? '#FFD700' : '#FFFFFF')};
   font-size: 1.5rem;
   cursor: pointer;
   z-index: 2;
@@ -69,7 +69,7 @@ const Rating = styled.p`
   color: #ffd700;
 `;
 
-/* NUOVO BOTTONE */
+/* Bottone per aggiungere il film al carrello */
 const CartButton = styled.button`
   border: none;
   margin-top: 0.5rem;
@@ -87,23 +87,33 @@ const CartButton = styled.button`
 
 function MovieCard({ movie }) {
     const { favorites, toggleFavorite } = useFavorites();
-
-    // Hook del cart
     const { addToCart } = useCart();
 
     const isFav = favorites.some((favMovie) => favMovie.id === movie.id);
 
+    // Gestione preferiti
     const handleFavoriteClick = (e) => {
         e.preventDefault();
         toggleFavorite(movie);
     };
 
+    // Controlla che il rating sia un numero valido
     const hasValidRating = typeof movie.rating === 'number' && !Number.isNaN(movie.rating);
 
-    // Aggiunta al carrello
+    // Quando clicchiamo "Add to Cart", passiamo un oggetto personalizzato
     const handleAddToCart = (e) => {
         e.preventDefault();
-        addToCart(movie);
+
+        // Esempio: prezzo fisso a 9.99
+        // Poster: costruiamo la URL TMDb (oppure fallback se manca movie.poster)
+        addToCart({
+            id: movie.id,
+            title: movie.title,
+            price: Number((5 + Math.random() * 10).toFixed(2)), // prezzo a caso
+            poster: movie.poster, // dipende da come definisci "poster" in movie
+            desc: 'A random description or movie.overview',
+            // Qualunque altro campo ti serva
+        });
     };
 
     return (
@@ -112,19 +122,19 @@ function MovieCard({ movie }) {
                 style={{ backgroundImage: `url(${movie.poster})` }}
                 whileHover={{ scale: 1.02 }}
             >
-                <FavoriteBtn onClick={handleFavoriteClick} isFav={isFav}>
+                <FavoriteBtn onClick={handleFavoriteClick} $isFav={isFav}>
                     <FontAwesomeIcon icon={isFav ? solidStar : emptyStar} />
                 </FavoriteBtn>
 
                 <Overlay>
                     <Title>{movie.title}</Title>
+
                     {hasValidRating ? (
                         <Rating>⭐ {movie.rating.toFixed(1)}</Rating>
                     ) : (
                         <Rating>No rating available</Rating>
                     )}
 
-                    {/* Nuovo bottone Add to Cart */}
                     <CartButton onClick={handleAddToCart}>Add to Cart</CartButton>
                 </Overlay>
             </CardWrapper>
@@ -132,6 +142,7 @@ function MovieCard({ movie }) {
     );
 }
 
+// Validazione delle props con PropTypes
 MovieCard.propTypes = {
     movie: PropTypes.shape({
         id: PropTypes.number.isRequired,
