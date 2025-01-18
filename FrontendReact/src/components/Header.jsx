@@ -1,7 +1,7 @@
 ﻿import { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom'; // <--- Aggiunto useNavigate
 import useNavbarVisibility from '../hooks/useNavbarVisibility';
 
 const HeaderWrapper = styled.header`
@@ -25,6 +25,7 @@ const Title = styled.h1`
   font-size: 1.2rem;
   letter-spacing: 2px;
   color: #fff;
+  cursor: pointer; /* Indichiamo che è cliccabile */
 `;
 
 const NavLinks = styled.nav`
@@ -92,10 +93,11 @@ const MobileMenu = styled(motion.div)`
 function Header() {
     const isNavbarVisible = useNavbarVisibility();
     const [menuOpen, setMenuOpen] = useState(false);
+    const navigate = useNavigate(); // <--- Hook per tornare indietro
 
     return (
         <HeaderWrapper $visible={isNavbarVisible}>
-            <Title>Futuristic Movies</Title>
+            <Title onClick={() => navigate(-1)}>Futuristic Movies</Title>
 
             <NavLinks>
                 <Link to="/">Home</Link>

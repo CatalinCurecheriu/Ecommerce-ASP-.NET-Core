@@ -1,5 +1,4 @@
-﻿// src/components/MovieCard.jsx
-import PropTypes from 'prop-types';
+﻿import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../context/useFavorites';
@@ -100,20 +99,18 @@ function MovieCard({ movie }) {
     // Controlla che il rating sia un numero valido
     const hasValidRating = typeof movie.rating === 'number' && !Number.isNaN(movie.rating);
 
-    // Quando clicchiamo "Add to Cart", passiamo un oggetto personalizzato
+    // Quando clicchiamo "Add to Cart"
     const handleAddToCart = (e) => {
         e.preventDefault();
-
-        // Esempio: prezzo fisso a 9.99
-        // Poster: costruiamo la URL TMDb (oppure fallback se manca movie.poster)
         addToCart({
             id: movie.id,
             title: movie.title,
             price: Number((5 + Math.random() * 10).toFixed(2)), // prezzo a caso
-            poster: movie.poster, // dipende da come definisci "poster" in movie
+            poster: movie.poster,
             desc: 'A random description or movie.overview',
-            // Qualunque altro campo ti serva
         });
+        // Mostra alert
+        alert('Oggetto aggiunto al carrello!');
     };
 
     return (
