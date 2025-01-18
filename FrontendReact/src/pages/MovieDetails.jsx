@@ -1,3 +1,5 @@
+// src/pages/MovieDetails.jsx
+
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
@@ -12,15 +14,28 @@ import styled from 'styled-components';
 import { Typography, Grid, CircularProgress } from '@mui/material';
 import { useCart } from '../context/useCart';
 
+// Importiamo i componenti creati ad hoc:
+import CastList from '../components/MovieDetails/CastList';
+import SimilarMovies from '../components/MovieDetails/SimilarMovies';
+import Reviews from '../components/MovieDetails/Reviews';
+
 // ====================== STYLED COMPONENTS ======================
+
+const PageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  color: #fff;
+`;
 
 const MovieCardWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
-  margin: 80px auto;
+  margin: 2rem auto;
   padding: 20px;
   background: rgba(0, 0, 0, 0.8);
   border-radius: 15px;
@@ -42,23 +57,16 @@ const InfoSection = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
-  color: #fff;
   z-index: 2;
-
-  @media (max-width: 768px) {
-    padding: 15px;
-  }
 `;
 
 const Poster = styled.img`
   width: auto;
   max-width: 300px;
-  height: 100%;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   margin-right: 20px;
   object-fit: cover;
-  filter: none;
   position: relative;
   z-index: 3;
 
@@ -101,7 +109,7 @@ const AddToCartButton = styled.button`
 `;
 
 const TrailerContainer = styled.div`
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   margin: 2rem auto;
   position: relative;
@@ -128,18 +136,16 @@ const NoTrailerMessage = styled.div`
   color: white;
   border-radius: 12px;
   margin: 2rem auto;
-  width: 90%;
   max-width: 1200px;
 `;
 
 const SectionWrapper = styled.div`
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   margin: 2rem auto;
-  color: #fff;
 `;
 
-// ====================== COMPONENT ======================
+// ====================== COMPONENTE PRINCIPALE ======================
 
 function MovieDetails() {
     const { id } = useParams();
@@ -153,7 +159,7 @@ function MovieDetails() {
 
     const { addToCart } = useCart();
 
-    // Carichiamo dettagli, trailer, cast, simili, recensioni
+    // Caricamento dati (dettagli, trailer, cast, simili, recensioni)
     useEffect(() => {
         const fetchAll = async () => {
             try {
@@ -174,11 +180,10 @@ function MovieDetails() {
                     getMovieReviews(id)
                 ]);
 
-                // Salviamo i dati principali
                 setMovie(movieData);
                 setCredits(creditsData);
 
-                // Troviamo il trailer ufficiale o "Trailer" generico
+                // Cerchiamo un trailer ufficiale su YouTube
                 const trailerVideo = videosData.find(
                     (video) =>
                         video.type === 'Trailer' &&
@@ -200,51 +205,52 @@ function MovieDetails() {
         fetchAll();
     }, [id]);
 
-    // Gestione Add to Cart
     const handleAddToCart = () => {
+        if (!movie) return;
+
         const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
-        if (movie) {
-            addToCart({
-                id: movie.id,
-                title: movie.title,
-                price: randomPrice,
-                poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-                desc: movie.overview || 'N/A'
-            });
-            alert('Item added to cart!');
-        }
+        addToCart({
+            id: movie.id,
+            title: movie.title,
+            price: randomPrice,
+            poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+            desc: movie.overview || 'N/A'
+        });
+        alert('Item added to cart!');
     };
 
-    // ====================== RENDERING ======================
+    // ====================== RENDER ======================
 
     if (loading) {
         return (
-            <div style={{ textAlign: 'center', marginTop: '60px' }}>
+            <PageContainer>
                 <CircularProgress color="inherit" />
                 <p>Loading...</p>
-            </div>
+            </PageContainer>
         );
     }
 
     if (error) {
         return (
-            <div style={{ textAlign: 'center', marginTop: '60px', color: 'red' }}>
-                {error}
-            </div>
+            <PageContainer>
+                <Typography variant="h6" style={{ color: 'red' }}>
+                    {error}
+                </Typography>
+            </PageContainer>
         );
     }
 
     if (!movie) {
         return (
-            <div style={{ textAlign: 'center', marginTop: '60px' }}>
-                Movie not found.
-            </div>
+            <PageContainer>
+                <Typography variant="h6">Movie not found.</Typography>
+            </PageContainer>
         );
     }
 
     return (
-        <>
-            {/* ================ DETTAGLI FILM PRINCIPALE ================ */}
+        <PageContainer>
+            {/* ========== SEZIONE DETTAGLIO FILM ========== */}
             <MovieCardWrapper>
                 <Background
                     background={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
@@ -254,13 +260,13 @@ function MovieDetails() {
                     alt={movie.title}
                 />
                 <InfoSection>
-                    <Typography variant="h4" component="h1" style={{ color: '#fff', marginBottom: '10px' }}>
+                    <Typography variant="h4" component="h1" style={{ marginBottom: '10px' }}>
                         {movie.title}
                     </Typography>
                     <Typography variant="subtitle1" style={{ color: '#9ac7fa' }}>
                         {movie.release_date?.split('-')[0]}, {movie.director || 'Unknown Director'}
                     </Typography>
-                    <Typography variant="body2" style={{ color: '#fff', margin: '10px 0' }}>
+                    <Typography variant="body2" style={{ margin: '10px 0' }}>
                         {movie.overview}
                     </Typography>
 
@@ -278,8 +284,7 @@ function MovieDetails() {
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Original language:</strong>{' '}
-                                {movie.original_language?.toUpperCase()}
+                                <strong>Original language:</strong> {movie.original_language?.toUpperCase()}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
@@ -304,11 +309,13 @@ function MovieDetails() {
                         </Grid>
                     </Grid>
 
-                    <AddToCartButton onClick={handleAddToCart}>Add to Cart</AddToCartButton>
+                    <AddToCartButton onClick={handleAddToCart}>
+                        Add to Cart
+                    </AddToCartButton>
                 </InfoSection>
             </MovieCardWrapper>
 
-            {/* ================ TRAILER ================ */}
+            {/* ========== SEZIONE TRAILER ========== */}
             {trailer ? (
                 <TrailerContainer>
                     <iframe
@@ -321,100 +328,23 @@ function MovieDetails() {
                 <NoTrailerMessage>No trailer available for this movie.</NoTrailerMessage>
             )}
 
-            {/* ================ CAST PRINCIPALE ================ */}
-            {credits && credits.cast?.length > 0 && (
-                <SectionWrapper>
-                    <Typography variant="h5" gutterBottom>
-                        Top Billed Cast
-                    </Typography>
-                    <Grid container spacing={2}>
-                        {credits.cast.slice(0, 6).map((actor) => (
-                            <Grid item xs={12} sm={6} md={4} key={actor.cast_id}>
-                                <div
-                                    style={{
-                                        background: 'rgba(255,255,255,0.08)',
-                                        padding: '1rem',
-                                        borderRadius: '8px'
-                                    }}
-                                >
-                                    <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
-                                        {actor.name}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        {actor.character ? `as ${actor.character}` : ''}
-                                    </Typography>
-                                </div>
-                            </Grid>
-                        ))}
-                    </Grid>
-                </SectionWrapper>
-            )}
+            {/* ========== SEZIONE CAST ========== */}
+            <SectionWrapper>
+                {credits && credits.cast?.length > 0 && (
+                    <CastList cast={credits.cast} />
+                )}
+            </SectionWrapper>
 
-            {/* ================ FILM SIMILI ================ */}
-            {similarMovies.length > 0 && (
-                <SectionWrapper>
-                    <Typography variant="h5" gutterBottom>
-                        Similar Movies
-                    </Typography>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                        {similarMovies.map((sim) => (
-                            <div
-                                key={sim.id}
-                                style={{
-                                    width: '140px',
-                                    textAlign: 'center',
-                                    background: 'rgba(255,255,255,0.08)',
-                                    borderRadius: '8px',
-                                    overflow: 'hidden'
-                                }}
-                            >
-                                <img
-                                    src={
-                                        sim.poster_path
-                                            ? `https://image.tmdb.org/t/p/w200${sim.poster_path}`
-                                            : 'https://via.placeholder.com/200x300?text=No+Poster'
-                                    }
-                                    alt={sim.title}
-                                    style={{ width: '100%', display: 'block' }}
-                                />
-                                <Typography variant="body2" style={{ padding: '0.5rem' }}>
-                                    {sim.title}
-                                </Typography>
-                            </div>
-                        ))}
-                    </div>
-                </SectionWrapper>
-            )}
+            {/* ========== SEZIONE FILM SIMILI ========== */}
+            <SectionWrapper>
+                <SimilarMovies movies={similarMovies} />
+            </SectionWrapper>
 
-            {/* ================ RECENSIONI ================ */}
-            {reviews.length > 0 && (
-                <SectionWrapper>
-                    <Typography variant="h5" gutterBottom>
-                        Reviews
-                    </Typography>
-                    {reviews.slice(0, 3).map((rev) => (
-                        <div
-                            key={rev.id}
-                            style={{
-                                marginBottom: '1.5rem',
-                                background: 'rgba(255,255,255,0.08)',
-                                padding: '1rem',
-                                borderRadius: '8px'
-                            }}
-                        >
-                            <Typography variant="subtitle2" style={{ fontWeight: 'bold' }}>
-                                {rev.author}
-                            </Typography>
-                            <Typography variant="body2" style={{ marginTop: '0.5rem' }}>
-                                {rev.content.length > 500
-                                    ? rev.content.slice(0, 500) + '...'
-                                    : rev.content}
-                            </Typography>
-                        </div>
-                    ))}
-                </SectionWrapper>
-            )}
-        </>
+            {/* ========== SEZIONE RECENSIONI ========== */}
+            <SectionWrapper>
+                <Reviews reviews={reviews} />
+            </SectionWrapper>
+        </PageContainer>
     );
 }
 
