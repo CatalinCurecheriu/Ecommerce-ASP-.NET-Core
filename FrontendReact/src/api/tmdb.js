@@ -114,3 +114,20 @@ export const getMovieVideos = async (movieId) => {
     const response = await tmdb.get(`/movie/${movieId}/videos`);
     return response.data.results;
 };
+
+
+export const getMovieCredits = async (movieId) => {
+    const response = await tmdb.get(`/movie/${movieId}/credits`);
+    return response.data; // { cast, crew }
+};
+
+export const getSimilarMovies = async (movieId) => {
+    const response = await tmdb.get(`/movie/${movieId}/similar`);
+    return response.data.results; // array di film simili
+};
+
+export const getMovieReviews = async (movieId) => {
+    const response = await tmdb.get(`/movie/${movieId}/reviews`);
+    return response.data.results; // array di recensioni
+};
+

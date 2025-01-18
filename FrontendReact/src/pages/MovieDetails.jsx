@@ -1,9 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovieDetails, getMovieVideos } from '../api/tmdb';
+import {
+    getMovieDetails,
+    getMovieVideos,
+    getMovieCredits,
+    getSimilarMovies,
+    getMovieReviews
+} from '../api/tmdb';
+
 import styled from 'styled-components';
-import { Typography, Grid } from '@mui/material';
+import { Typography, Grid, CircularProgress } from '@mui/material';
 import { useCart } from '../context/useCart';
+
+// ====================== STYLED COMPONENTS ======================
 
 const MovieCardWrapper = styled.div`
   position: relative;
@@ -123,38 +132,63 @@ const NoTrailerMessage = styled.div`
   max-width: 1200px;
 `;
 
+const SectionWrapper = styled.div`
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  color: #fff;
+`;
+
+// ====================== COMPONENT ======================
+
 function MovieDetails() {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [trailer, setTrailer] = useState(null);
+    const [credits, setCredits] = useState(null);
+    const [similarMovies, setSimilarMovies] = useState([]);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const { addToCart } = useCart();
 
+    // Carichiamo dettagli, trailer, cast, simili, recensioni
     useEffect(() => {
-        const fetchDetails = async () => {
+        const fetchAll = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                // Fetch both movie details and videos in parallel
-                const [movieData, videosData] = await Promise.all([
+                const [
+                    movieData,
+                    videosData,
+                    creditsData,
+                    similarData,
+                    reviewsData
+                ] = await Promise.all([
                     getMovieDetails(id),
-                    getMovieVideos(id)
+                    getMovieVideos(id),
+                    getMovieCredits(id),
+                    getSimilarMovies(id),
+                    getMovieReviews(id)
                 ]);
 
+                // Salviamo i dati principali
                 setMovie(movieData);
+                setCredits(creditsData);
 
-                // Find the official trailer or any video that's a trailer
+                // Troviamo il trailer ufficiale o "Trailer" generico
                 const trailerVideo = videosData.find(
-                    video =>
+                    (video) =>
                         video.type === 'Trailer' &&
                         video.site === 'YouTube' &&
                         (video.official || true)
                 );
-
                 setTrailer(trailerVideo);
+
+                setSimilarMovies(similarData);
+                setReviews(reviewsData);
             } catch (err) {
                 console.error(err);
                 setError('Unable to load movie details');
@@ -163,37 +197,58 @@ function MovieDetails() {
             }
         };
 
-        fetchDetails();
+        fetchAll();
     }, [id]);
 
+    // Gestione Add to Cart
+    const handleAddToCart = () => {
+        const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
+        if (movie) {
+            addToCart({
+                id: movie.id,
+                title: movie.title,
+                price: randomPrice,
+                poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                desc: movie.overview || 'N/A'
+            });
+            alert('Item added to cart!');
+        }
+    };
+
+    // ====================== RENDERING ======================
+
     if (loading) {
-        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Loading...</div>;
+        return (
+            <div style={{ textAlign: 'center', marginTop: '60px' }}>
+                <CircularProgress color="inherit" />
+                <p>Loading...</p>
+            </div>
+        );
     }
 
     if (error) {
-        return <div style={{ textAlign: 'center', marginTop: '60px', color: 'red' }}>{error}</div>;
+        return (
+            <div style={{ textAlign: 'center', marginTop: '60px', color: 'red' }}>
+                {error}
+            </div>
+        );
     }
 
     if (!movie) {
-        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Movie not found.</div>;
+        return (
+            <div style={{ textAlign: 'center', marginTop: '60px' }}>
+                Movie not found.
+            </div>
+        );
     }
-
-    const handleAddToCart = () => {
-        const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
-        addToCart({
-            id: movie.id,
-            title: movie.title,
-            price: randomPrice,
-            poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-            desc: movie.overview || 'N/A'
-        });
-        alert('Item added to cart!');
-    };
 
     return (
         <>
+            {/* ================ DETTAGLI FILM PRINCIPALE ================ */}
             <MovieCardWrapper>
-                <Background background={`https://image.tmdb.org/t/p/original${movie.poster_path}`} />
+                <Background
+                    background={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                />
                 <Poster
                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                     alt={movie.title}
@@ -217,12 +272,14 @@ function MovieDetails() {
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Genre:</strong> {movie.genres?.map((genre) => genre.name).join(', ')}
+                                <strong>Genre:</strong>{' '}
+                                {movie.genres?.map((genre) => genre.name).join(', ')}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Original language:</strong> {movie.original_language?.toUpperCase()}
+                                <strong>Original language:</strong>{' '}
+                                {movie.original_language?.toUpperCase()}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
@@ -251,6 +308,7 @@ function MovieDetails() {
                 </InfoSection>
             </MovieCardWrapper>
 
+            {/* ================ TRAILER ================ */}
             {trailer ? (
                 <TrailerContainer>
                     <iframe
@@ -260,9 +318,101 @@ function MovieDetails() {
                     />
                 </TrailerContainer>
             ) : (
-                <NoTrailerMessage>
-                    No trailer available for this movie.
-                </NoTrailerMessage>
+                <NoTrailerMessage>No trailer available for this movie.</NoTrailerMessage>
+            )}
+
+            {/* ================ CAST PRINCIPALE ================ */}
+            {credits && credits.cast?.length > 0 && (
+                <SectionWrapper>
+                    <Typography variant="h5" gutterBottom>
+                        Top Billed Cast
+                    </Typography>
+                    <Grid container spacing={2}>
+                        {credits.cast.slice(0, 6).map((actor) => (
+                            <Grid item xs={12} sm={6} md={4} key={actor.cast_id}>
+                                <div
+                                    style={{
+                                        background: 'rgba(255,255,255,0.08)',
+                                        padding: '1rem',
+                                        borderRadius: '8px'
+                                    }}
+                                >
+                                    <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>
+                                        {actor.name}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {actor.character ? `as ${actor.character}` : ''}
+                                    </Typography>
+                                </div>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </SectionWrapper>
+            )}
+
+            {/* ================ FILM SIMILI ================ */}
+            {similarMovies.length > 0 && (
+                <SectionWrapper>
+                    <Typography variant="h5" gutterBottom>
+                        Similar Movies
+                    </Typography>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                        {similarMovies.map((sim) => (
+                            <div
+                                key={sim.id}
+                                style={{
+                                    width: '140px',
+                                    textAlign: 'center',
+                                    background: 'rgba(255,255,255,0.08)',
+                                    borderRadius: '8px',
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                <img
+                                    src={
+                                        sim.poster_path
+                                            ? `https://image.tmdb.org/t/p/w200${sim.poster_path}`
+                                            : 'https://via.placeholder.com/200x300?text=No+Poster'
+                                    }
+                                    alt={sim.title}
+                                    style={{ width: '100%', display: 'block' }}
+                                />
+                                <Typography variant="body2" style={{ padding: '0.5rem' }}>
+                                    {sim.title}
+                                </Typography>
+                            </div>
+                        ))}
+                    </div>
+                </SectionWrapper>
+            )}
+
+            {/* ================ RECENSIONI ================ */}
+            {reviews.length > 0 && (
+                <SectionWrapper>
+                    <Typography variant="h5" gutterBottom>
+                        Reviews
+                    </Typography>
+                    {reviews.slice(0, 3).map((rev) => (
+                        <div
+                            key={rev.id}
+                            style={{
+                                marginBottom: '1.5rem',
+                                background: 'rgba(255,255,255,0.08)',
+                                padding: '1rem',
+                                borderRadius: '8px'
+                            }}
+                        >
+                            <Typography variant="subtitle2" style={{ fontWeight: 'bold' }}>
+                                {rev.author}
+                            </Typography>
+                            <Typography variant="body2" style={{ marginTop: '0.5rem' }}>
+                                {rev.content.length > 500
+                                    ? rev.content.slice(0, 500) + '...'
+                                    : rev.content}
+                            </Typography>
+                        </div>
+                    ))}
+                </SectionWrapper>
             )}
         </>
     );
