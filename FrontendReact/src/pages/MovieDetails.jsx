@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getMovieDetails } from '../api/tmdb';
+import { getMovieDetails, getMovieVideos } from '../api/tmdb';
 import styled from 'styled-components';
 import { Typography, Grid } from '@mui/material';
-import { useCart } from '../context/useCart'; // <--- Import useCart
+import { useCart } from '../context/useCart';
 
 const MovieCardWrapper = styled.div`
   position: relative;
@@ -73,7 +73,6 @@ const Background = styled.div`
   z-index: 1;
 `;
 
-// Nuovo bottone "Add to Cart"
 const AddToCartButton = styled.button`
   margin-top: 20px;
   border: 2px solid #fff;
@@ -92,7 +91,6 @@ const AddToCartButton = styled.button`
   }
 `;
 
-// Contenitore responsive per l'iframe
 const TrailerContainer = styled.div`
   width: 90%;
   max-width: 1200px;
@@ -106,41 +104,70 @@ const TrailerContainer = styled.div`
 
   iframe {
     position: absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    border:0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
+`;
+
+const NoTrailerMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 12px;
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 1200px;
 `;
 
 function MovieDetails() {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
+    const [trailer, setTrailer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const { addToCart } = useCart(); // <--- Hook dal Cart
+    const { addToCart } = useCart();
 
     useEffect(() => {
         const fetchDetails = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await getMovieDetails(id);
-                setMovie(data);
+
+                // Fetch both movie details and videos in parallel
+                const [movieData, videosData] = await Promise.all([
+                    getMovieDetails(id),
+                    getMovieVideos(id)
+                ]);
+
+                setMovie(movieData);
+
+                // Find the official trailer or any video that's a trailer
+                const trailerVideo = videosData.find(
+                    video =>
+                        video.type === 'Trailer' &&
+                        video.site === 'YouTube' &&
+                        (video.official || true)
+                );
+
+                setTrailer(trailerVideo);
             } catch (err) {
                 console.error(err);
-                setError('Impossibile caricare i dettagli del film');
+                setError('Unable to load movie details');
             } finally {
                 setLoading(false);
             }
         };
+
         fetchDetails();
     }, [id]);
 
     if (loading) {
-        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Caricamento in corso...</div>;
+        return <div style={{ textAlign: 'center', marginTop: '60px' }}>Loading...</div>;
     }
 
     if (error) {
@@ -152,7 +179,6 @@ function MovieDetails() {
     }
 
     const handleAddToCart = () => {
-        // Esempio: prezzo random
         const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
         addToCart({
             id: movie.id,
@@ -161,7 +187,7 @@ function MovieDetails() {
             poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
             desc: movie.overview || 'N/A'
         });
-        alert('Oggetto aggiunto al carrello!');
+        alert('Item added to cart!');
     };
 
     return (
@@ -186,17 +212,17 @@ function MovieDetails() {
                     <Grid container spacing={2} style={{ marginTop: '20px' }}>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Durata:</strong> {movie.runtime} min
+                                <strong>Duration:</strong> {movie.runtime} min
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Genere:</strong> {movie.genres?.map((genre) => genre.name).join(', ')}
+                                <strong>Genre:</strong> {movie.genres?.map((genre) => genre.name).join(', ')}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Lingua originale:</strong> {movie.original_language?.toUpperCase()}
+                                <strong>Original language:</strong> {movie.original_language?.toUpperCase()}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
@@ -206,35 +232,38 @@ function MovieDetails() {
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Incasso totale:</strong> ${movie.revenue?.toLocaleString()}
+                                <strong>Revenue:</strong> ${movie.revenue?.toLocaleString()}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Voto medio:</strong> {movie.vote_average}
+                                <strong>Average vote:</strong> {movie.vote_average}
                             </Typography>
                         </Grid>
                         <Grid item xs={6} sm={4}>
                             <Typography variant="subtitle1">
-                                <strong>Numero di voti:</strong> {movie.vote_count}
+                                <strong>Vote count:</strong> {movie.vote_count}
                             </Typography>
                         </Grid>
                     </Grid>
 
-                    {/* Bottone "Add to Cart" al posto di "Guarda il Trailer" */}
                     <AddToCartButton onClick={handleAddToCart}>Add to Cart</AddToCartButton>
                 </InfoSection>
             </MovieCardWrapper>
 
-            {/* Pannello responsive con iframe del trailer */}
-            <TrailerContainer>
-                <iframe
-                    title="Movie Trailer"
-                    // Cerchiamo su YouTube: "TITOLO + trailer"
-                    src={`https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(movie.title + ' trailer')}`}
-                    allowFullScreen
-                />
-            </TrailerContainer>
+            {trailer ? (
+                <TrailerContainer>
+                    <iframe
+                        title={`${movie.title} Trailer`}
+                        src={`https://www.youtube.com/embed/${trailer.key}`}
+                        allowFullScreen
+                    />
+                </TrailerContainer>
+            ) : (
+                <NoTrailerMessage>
+                    No trailer available for this movie.
+                </NoTrailerMessage>
+            )}
         </>
     );
 }

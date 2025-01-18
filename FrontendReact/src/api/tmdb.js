@@ -108,3 +108,9 @@ export const getMovieDetails = async (movieId) => {
     const response = await tmdb.get(`/movie/${movieId}`);
     return response.data;
 };
+
+// Add this new function in tmdb.js
+export const getMovieVideos = async (movieId) => {
+    const response = await tmdb.get(`/movie/${movieId}/videos`);
+    return response.data.results;
+};
