@@ -180,6 +180,14 @@ function MovieDetails() {
                     getMovieReviews(id)
                 ]);
 
+                // TROVIAMO IL DIRECTOR
+                const directorCrew = creditsData.crew.find(
+                    (member) => member.job === 'Director'
+                );
+                const directorName = directorCrew ? directorCrew.name : 'Unknown Director';
+                // AGGIUNGIAMOLO A movieData
+                movieData.director = directorName;
+
                 setMovie(movieData);
                 setCredits(creditsData);
 
