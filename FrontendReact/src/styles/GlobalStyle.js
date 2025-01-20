@@ -17,7 +17,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   #root {
-    padding-top: 60px; /* Aggiungi padding per evitare che il contenuto vada sotto la navbar */
+    padding-top: 30px; /* Aggiungi padding per evitare che il contenuto vada sotto la navbar */
   }
 
   ::-webkit-scrollbar {

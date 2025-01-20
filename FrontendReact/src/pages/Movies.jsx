@@ -53,6 +53,7 @@ function Movies() {
                         sortBy: "popularity.desc",
                     });
                 }
+
                 setMovies(results);
             } catch (err) {
                 console.error(err);
@@ -79,9 +80,9 @@ function Movies() {
             {loading && <p>Caricamento in corso...</p>}
             {error && <p style={{ color: "red" }}>{error}</p>}
             <MoviesGrid>
-                {movies.map((movie) => (
+                {movies.map((movie, index) => (
                     <MovieCard
-                        key={movie.id}
+                        key={movie.id + '-' + index} // Evita duplicati di key
                         movie={{
                             id: movie.id,
                             title: movie.title,

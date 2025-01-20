@@ -1,26 +1,24 @@
-// src/pages/MovieDetails.jsx
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-    getMovieDetails,
-    getMovieVideos,
-    getMovieCredits,
-    getSimilarMovies,
-    getMovieReviews
+  getMovieDetails,
+  getMovieVideos,
+  getMovieCredits,
+  getSimilarMovies,
+  getMovieReviews
 } from '../api/tmdb';
 
 import styled from 'styled-components';
 import { Typography, Grid, CircularProgress } from '@mui/material';
 import { useCart } from '../context/useCart';
 
-// Importiamo i componenti creati ad hoc:
 import CastList from '../components/MovieDetails/CastList';
 import SimilarMovies from '../components/MovieDetails/SimilarMovies';
 import Reviews from '../components/MovieDetails/Reviews';
 
-// ====================== STYLED COMPONENTS ======================
+// ===================== STYLED COMPONENTS =====================
 
+// Un container generale, se serve
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -29,13 +27,18 @@ const PageContainer = styled.div`
   color: #fff;
 `;
 
+/**
+ * MovieCardWrapper
+ *  - Ridotto la margin-top da 80px a 40px, 
+ *    così è “più in alto” ma non troppo schiacciato.
+ */
 const MovieCardWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 90%;
   max-width: 1200px;
-  margin: 2rem auto;
+  margin: 40px auto;  /* Era 80px, ora 40px per alzarlo un po' */
   padding: 20px;
   background: rgba(0, 0, 0, 0.8);
   border-radius: 15px;
@@ -52,6 +55,9 @@ const MovieCardWrapper = styled.div`
   }
 `;
 
+/**
+ * Sezione delle info sulla destra
+ */
 const InfoSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -60,9 +66,13 @@ const InfoSection = styled.div`
   z-index: 2;
 `;
 
+/**
+ * Poster “originale”: max-width 300px, margin-right 20px
+ */
 const Poster = styled.img`
   width: auto;
   max-width: 300px;
+  height: 100%;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
   margin-right: 20px;
@@ -76,13 +86,18 @@ const Poster = styled.img`
   }
 `;
 
+/**
+ * Sfondo sfocato dietro al card
+ *  - Usando $background, così styled-components non passa 
+ *    la prop "background" al DOM
+ */
 const Background = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url(${(props) => props.background});
+  background-image: url(${(props) => props.$background});
   background-size: cover;
   background-position: center;
   filter: blur(20px);
@@ -145,215 +160,211 @@ const SectionWrapper = styled.div`
   margin: 2rem auto;
 `;
 
-// ====================== COMPONENTE PRINCIPALE ======================
+// ===================== COMPONENTE PRINCIPALE =====================
 
 function MovieDetails() {
-    const { id } = useParams();
-    const [movie, setMovie] = useState(null);
-    const [trailer, setTrailer] = useState(null);
-    const [credits, setCredits] = useState(null);
-    const [similarMovies, setSimilarMovies] = useState([]);
-    const [reviews, setReviews] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  const { id } = useParams();
+  const [movie, setMovie] = useState(null);
+  const [trailer, setTrailer] = useState(null);
+  const [credits, setCredits] = useState(null);
+  const [similarMovies, setSimilarMovies] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const { addToCart } = useCart();
+  const { addToCart } = useCart();
 
-    // Caricamento dati (dettagli, trailer, cast, simili, recensioni)
-    useEffect(() => {
-        const fetchAll = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+  // Caricamento dati (dettagli, trailer, cast, simili, recensioni)
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-                const [
-                    movieData,
-                    videosData,
-                    creditsData,
-                    similarData,
-                    reviewsData
-                ] = await Promise.all([
-                    getMovieDetails(id),
-                    getMovieVideos(id),
-                    getMovieCredits(id),
-                    getSimilarMovies(id),
-                    getMovieReviews(id)
-                ]);
+        const [
+          movieData,
+          videosData,
+          creditsData,
+          similarData,
+          reviewsData
+        ] = await Promise.all([
+          getMovieDetails(id),
+          getMovieVideos(id),
+          getMovieCredits(id),
+          getSimilarMovies(id),
+          getMovieReviews(id)
+        ]);
 
-                // TROVIAMO IL DIRECTOR
-                const directorCrew = creditsData.crew.find(
-                    (member) => member.job === 'Director'
-                );
-                const directorName = directorCrew ? directorCrew.name : 'Unknown Director';
-                // AGGIUNGIAMOLO A movieData
-                movieData.director = directorName;
+        // Troviamo il regista
+        const directorCrew = creditsData.crew.find(
+          (member) => member.job === 'Director'
+        );
+        const directorName = directorCrew ? directorCrew.name : 'Unknown Director';
+        movieData.director = directorName;
 
-                setMovie(movieData);
-                setCredits(creditsData);
+        setMovie(movieData);
+        setCredits(creditsData);
 
-                // Cerchiamo un trailer ufficiale su YouTube
-                const trailerVideo = videosData.find(
-                    (video) =>
-                        video.type === 'Trailer' &&
-                        video.site === 'YouTube' &&
-                        (video.official || true)
-                );
-                setTrailer(trailerVideo);
+        // Cerchiamo il trailer
+        const trailerVideo = videosData.find(
+          (video) =>
+            video.type === 'Trailer' &&
+            video.site === 'YouTube' &&
+            (video.official || true)
+        );
+        setTrailer(trailerVideo);
 
-                setSimilarMovies(similarData);
-                setReviews(reviewsData);
-            } catch (err) {
-                console.error(err);
-                setError('Unable to load movie details');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAll();
-    }, [id]);
-
-    const handleAddToCart = () => {
-        if (!movie) return;
-
-        const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
-        addToCart({
-            id: movie.id,
-            title: movie.title,
-            price: randomPrice,
-            poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-            desc: movie.overview || 'N/A'
-        });
-        alert('Item added to cart!');
+        setSimilarMovies(similarData);
+        setReviews(reviewsData);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load movie details');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // ====================== RENDER ======================
+    fetchAll();
+  }, [id]);
 
-    if (loading) {
-        return (
-            <PageContainer>
-                <CircularProgress color="inherit" />
-                <p>Loading...</p>
-            </PageContainer>
-        );
-    }
+  const handleAddToCart = () => {
+    if (!movie) return;
 
-    if (error) {
-        return (
-            <PageContainer>
-                <Typography variant="h6" style={{ color: 'red' }}>
-                    {error}
-                </Typography>
-            </PageContainer>
-        );
-    }
+    const randomPrice = Number((5 + Math.random() * 10).toFixed(2));
+    addToCart({
+      id: movie.id,
+      title: movie.title,
+      price: randomPrice,
+      poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+      desc: movie.overview || 'N/A'
+    });
+    alert('Item added to cart!');
+  };
 
-    if (!movie) {
-        return (
-            <PageContainer>
-                <Typography variant="h6">Movie not found.</Typography>
-            </PageContainer>
-        );
-    }
-
+  if (loading) {
     return (
-        <PageContainer>
-            {/* ========== SEZIONE DETTAGLIO FILM ========== */}
-            <MovieCardWrapper>
-                <Background
-                    background={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
-                />
-                <Poster
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt={movie.title}
-                />
-                <InfoSection>
-                    <Typography variant="h4" component="h1" style={{ marginBottom: '10px' }}>
-                        {movie.title}
-                    </Typography>
-                    <Typography variant="subtitle1" style={{ color: '#9ac7fa' }}>
-                        {movie.release_date?.split('-')[0]}, {movie.director || 'Unknown Director'}
-                    </Typography>
-                    <Typography variant="body2" style={{ margin: '10px 0' }}>
-                        {movie.overview}
-                    </Typography>
-
-                    <Grid container spacing={2} style={{ marginTop: '20px' }}>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Duration:</strong> {movie.runtime} min
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Genre:</strong>{' '}
-                                {movie.genres?.map((genre) => genre.name).join(', ')}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Original language:</strong> {movie.original_language?.toUpperCase()}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Budget:</strong> ${movie.budget?.toLocaleString()}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Revenue:</strong> ${movie.revenue?.toLocaleString()}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Average vote:</strong> {movie.vote_average}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={4}>
-                            <Typography variant="subtitle1">
-                                <strong>Vote count:</strong> {movie.vote_count}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-
-                    <AddToCartButton onClick={handleAddToCart}>
-                        Add to Cart
-                    </AddToCartButton>
-                </InfoSection>
-            </MovieCardWrapper>
-
-            {/* ========== SEZIONE TRAILER ========== */}
-            {trailer ? (
-                <TrailerContainer>
-                    <iframe
-                        title={`${movie.title} Trailer`}
-                        src={`https://www.youtube.com/embed/${trailer.key}`}
-                        allowFullScreen
-                    />
-                </TrailerContainer>
-            ) : (
-                <NoTrailerMessage>No trailer available for this movie.</NoTrailerMessage>
-            )}
-
-            {/* ========== SEZIONE CAST ========== */}
-            <SectionWrapper>
-                {credits && credits.cast?.length > 0 && (
-                    <CastList cast={credits.cast} />
-                )}
-            </SectionWrapper>
-
-            {/* ========== SEZIONE FILM SIMILI ========== */}
-            <SectionWrapper>
-                <SimilarMovies movies={similarMovies} />
-            </SectionWrapper>
-
-            {/* ========== SEZIONE RECENSIONI ========== */}
-            <SectionWrapper>
-                <Reviews reviews={reviews} />
-            </SectionWrapper>
-        </PageContainer>
+      <PageContainer>
+        <CircularProgress color="inherit" />
+        <p>Loading...</p>
+      </PageContainer>
     );
+  }
+
+  if (error) {
+    return (
+      <PageContainer>
+        <Typography variant="h6" style={{ color: 'red' }}>
+          {error}
+        </Typography>
+      </PageContainer>
+    );
+  }
+
+  if (!movie) {
+    return (
+      <PageContainer>
+        <Typography variant="h6">Movie not found.</Typography>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer>
+      {/* ========== DETTAGLIO FILM ========== */}
+      <MovieCardWrapper>
+        <Background
+          $background={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+        />
+        <Poster
+          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+          alt={movie.title}
+        />
+        <InfoSection>
+          <Typography variant="h4" component="h1" style={{ marginBottom: '10px' }}>
+            {movie.title}
+          </Typography>
+          <Typography variant="subtitle1" style={{ color: '#9ac7fa' }}>
+            {movie.release_date?.split('-')[0]}, {movie.director || 'Unknown Director'}
+          </Typography>
+          <Typography variant="body2" style={{ margin: '10px 0' }}>
+            {movie.overview}
+          </Typography>
+
+          <Grid container spacing={2} style={{ marginTop: '20px' }}>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Duration:</strong> {movie.runtime} min
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Genre:</strong> {movie.genres?.map((g) => g.name).join(', ')}
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Original language:</strong> {movie.original_language?.toUpperCase()}
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Budget:</strong> ${movie.budget?.toLocaleString()}
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Revenue:</strong> ${movie.revenue?.toLocaleString()}
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Average vote:</strong> {movie.vote_average}
+              </Typography>
+            </Grid>
+            <Grid item xs={6} sm={4}>
+              <Typography variant="subtitle1">
+                <strong>Vote count:</strong> {movie.vote_count}
+              </Typography>
+            </Grid>
+          </Grid>
+
+          <AddToCartButton onClick={handleAddToCart}>
+            Add to Cart
+          </AddToCartButton>
+        </InfoSection>
+      </MovieCardWrapper>
+
+      {/* ========== TRAILER ========== */}
+      {trailer ? (
+        <TrailerContainer>
+          <iframe
+            title={`${movie.title} Trailer`}
+            src={`https://www.youtube.com/embed/${trailer.key}`}
+            allowFullScreen
+          />
+        </TrailerContainer>
+      ) : (
+        <NoTrailerMessage>No trailer available for this movie.</NoTrailerMessage>
+      )}
+
+      {/* ========== CAST ========== */}
+      <SectionWrapper>
+        {credits && credits.cast?.length > 0 && (
+          <CastList cast={credits.cast} />
+        )}
+      </SectionWrapper>
+
+      {/* ========== FILM SIMILI ========== */}
+      <SectionWrapper>
+        <SimilarMovies movies={similarMovies} />
+      </SectionWrapper>
+
+      {/* ========== RECENSIONI ========== */}
+      <SectionWrapper>
+        <Reviews reviews={reviews} />
+      </SectionWrapper>
+    </PageContainer>
+  );
 }
 
 export default MovieDetails;
